@@ -1,0 +1,58 @@
+<!-- order_list.html -->
+{% extends 'base.html' %}
+
+{% block title %} invoice  {% endblock title %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Your Order List</h1>
+
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if orders %}
+            <table class="table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th>Ordered Items</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td>{{ order.order_uuid }}</td>
+                            <td>
+                                
+                                    {{ order.get_status_display }}
+                                
+                            </td>
+                            <td>Rs. {{ order.total_price }}</td>
+                            <td>
+                                <ul>
+                                    {% for item in order.orderitem_set.all %}
+                                        <li>{{ item.quantity }} x {{ item.watch.name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td>
+                                <a href="{% url 'invoice' order_uuid=order.order_uuid %}" class="btn btn-primary">Download Invoice</a>
+                            </td>
+                            
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>You haven't placed any orders yet.</p>
+        {% endif %}
+    </div>
+{% endblock %}

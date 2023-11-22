@@ -1,0 +1,14 @@
+<!-- watches/templates/watches/payment_successful.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Payment Successful {% endblock title %}
+
+{% block body %}
+    <div class="container mt-4 text-center">
+        <div class="checkmark-image">
+            <img src="{% static 'check_mark.png' %}" alt="Check Mark"  style="max-width: 100px; height: auto;">
+        </div>
+        <h1 class="mt-3">Payment Successful</h1>
+        <p class="lead">Thank you for your payment!</p>
+    </div>
+{% endblock %}

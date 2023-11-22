@@ -1,0 +1,42 @@
+<!-- watches/templates/watches/dummy_payment.html -->
+{% extends 'base.html' %}
+
+{% block title %} Dummy Payment {% endblock title %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h1 class="text-center">Payment Processing</h1>
+            </div>
+            <div class="card-body">
+                <p class="lead">To proceed with your purchase, please enter your payment details.</p>
+
+                <form method="post" action="{% url 'process_payment' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="card_number">Card Number</label>
+                        <input type="text" class="form-control" id="card_number" placeholder="1234 5678 9012 3456">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="expiry_date">Expiry Date</label>
+                            <input type="text" class="form-control" id="expiry_date" placeholder="MM/YY">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="cvv">CVV</label>
+                            <input type="text" class="form-control" id="cvv" placeholder="123">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cardholder_name">Cardholder Name</label>
+                        <input type="text" class="form-control" id="cardholder_name" placeholder="John Doe">
+                    </div>
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">Pay Now</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

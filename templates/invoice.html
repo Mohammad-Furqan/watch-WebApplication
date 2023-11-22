@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} Invoice {% endblock title %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Royal Watches Collection, Pune </h2>
+                <p><strong>Company Name:</strong> Royal Watches</p>
+                <p><strong>Address:</strong> Kondhwa,Pune</p>
+                <p><strong>Phone:</strong> +919876543210</p>
+                <p><strong>Email:</strong> Royalwatches@gmail.com</p>
+            </div>
+            <div class="col-md-6 text-right">
+                <h2>Invoice</h2>
+                <p><strong>Invoice Date:</strong> {{ order.created_at|date:"F d, Y" }}</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <h2>Client Information</h2>
+        <p><strong>Client Name:</strong> {{ order.user.get_full_name }}</p>
+        <!-- Add more client details as needed -->
+
+        <hr>
+
+        <h2>Invoice Details</h2>
+        <p><strong>Invoice Number:</strong> {{ order.order_uuid }}</p>
+        <table class="table table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.orderitem_set.all %}
+                    <tr>
+                        <td>{{ item.watch.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>Rs. {{ item.watch.price }}</td>
+                        <td>Rs. {{ item.total_price }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p><strong>Total Amount :</strong> Rs. {{ order.total_price }}</p>
+
+
+        <hr>
+
+        <div class="text-right mt-4">
+            <button class="btn btn-primary" onclick="printInvoice()">Print Invoice</button>
+        </div>
+    </div>
+    <script>
+        function printInvoice() {
+            // Use the window.print() method to open the print dialog
+            window.print();
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block body %}
+
+
+
+    <div class="content-section">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+
+                {% if messages %}
+                {% for message in messages  %}
+                {% comment %} Bootstrap alert class style {% endcomment %}
+                <p class="alert alert-{{message.tags}}" style='color:#f9a355'>{{message}}</p>                
+                {% endfor %}
+                {% endif %} 
+                
+        <form method="POST" action="{% url 'login' %}?next=/home/">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <h2 class="border-bottom mb-4 row justify-content-center" style='color:green'>Login</h2>
+                {{ form |crispy }}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit">Login</button>
+            </div>
+        </form>
+         <div class="border-top pt-3">
+             <small class="text-muted">  {% comment %}  {% endcomment %}
+                Create An Account? <a class="ml-2" href="{% url 'register' %}">Sign Up Now</a>
+            </small>
+        </div> 
+    </div>
+</div>
+</div>
+
+
+{% endblock body %}

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Royal Watches {% endblock title %}
+
+{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Watch - Home</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Optional: Add your own custom styles here -->
+    <style>
+        .jumbotron {
+            background-color: #587d94;
+            
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Hero Section -->
+    <div class="jumbotron jumbotron-fluid text-white text-center">
+        <div class="container">
+            <h1 class="display-4" >Welcome to Royal Watches</h1>
+            <p class="lead">Discover a world of elegance and precision in timekeeping.</p>
+            <a href="/watches/" class="btn btn-primary btn-lg">Explore Featured Watches</a>
+        </div>
+    </div>
+
+    <!-- Featured Watches Section -->
+    <div class="container mt-5" id="featured-watches">
+        <h2 class="text-center mb-4">Featured Watches</h2>
+        <div class="row">
+            {% for watch in featured_watches %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ watch.image.url }}" class="card-img-top" alt="{{ watch.name }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ watch.name }}</h5>
+                            <p class="card-text">{{ watch.description }}</p>
+                            <p class="card-text">Price: Rs. {{ watch.price }}</p>
+                            <a href="{% url 'watch_detail' watch_id=watch.id %}" class="btn btn-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="container mt-5 text-center">
+        <h2 class="mb-4">Find Your Perfect Watch Today</h2>
+        <a href="/watches/" class="btn btn-primary btn-lg">Explore All Watches</a>
+    </div>
+
+    <!-- Bootstrap JS, Popper.js, and jQuery (required for Bootstrap) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>
+{% endblock body %}

@@ -1,0 +1,45 @@
+<!-- watches/templates/watches/watch_list.html -->
+{% extends 'base.html' %}
+
+{% block title %} Royal Watches {% endblock title %}
+
+{% block body %}
+<!-- Main Content -->
+<div class="container mt-5">
+    <div class="row">
+        {% for watch in watches %}
+            <!-- Watch Box -->
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <img src="{{ watch.image.url }}" class="card-img-top" alt="{{ watch.name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ watch.name }}</h5>
+                        <p class="card-text">{{ watch.description }}</p>
+                        <p class="card-text">Price: {{ watch.price }}</p>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'watch_detail' watch_id=watch.id %}" class="btn btn-primary">View Details</a>
+
+                            <form method="post" action="{% url 'add_to_cart' watch.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success" onclick="showAddToCartMessage('{{ watch.name }}')">Add to Cart</button>
+                            </form>
+                        {% else %}
+                            <p style="color:#eb6161">Login required to Buy </p>
+                            <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Footer -->
+
+<script>
+    function showAddToCartMessage(itemName) {
+        alert(itemName + " has been added to your cart!");
+    }
+</script>
+
+{% endblock body %}
