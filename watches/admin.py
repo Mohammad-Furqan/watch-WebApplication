@@ -6,16 +6,12 @@ from django.utils.html import format_html
 
 # Register your models here.
 
-class WatchAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price', 'is_featured')
-    search_fields = ('name', 'description')
-    list_filter = ('is_featured',)
 
 class WatchAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'price', 'is_featured', 'display_image')
+    list_display = ('name', 'description', 'price', 'is_featured','stock_quantity','display_image')
     search_fields = ('name', 'description')
     list_filter = ('is_featured',)
-
+    list_editable=('stock_quantity',)
     def display_image(self, obj):
         if obj.image:
             return format_html('<img src="{}" width="100" />', obj.image.url)

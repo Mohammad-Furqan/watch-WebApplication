@@ -15,7 +15,7 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ watch.name }}</h5>
                         <p class="card-text">{{ watch.description }}</p>
-                        <p class="card-text">Price: {{ watch.price }}</p>
+                        <p class="card-text">Price: {{ watch.price }} Quantity: {{watch.stock_quantity}}</p>
                         {% if user.is_authenticated %}
                             <a href="{% url 'watch_detail' watch_id=watch.id %}" class="btn btn-primary">View Details</a>
 

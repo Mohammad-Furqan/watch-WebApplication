@@ -6,6 +6,8 @@ from watches.models import Watch ,Cart, CartItem,Order,OrderItem,Contact
 from django.contrib import messages
 from users.models import UserDetail
 from users.forms import AddressUpdateForm
+from django.db import transaction
+from django.http import HttpResponseRedirect
 # Create your views here.
 # /views.py
 
@@ -56,9 +58,11 @@ def add_to_cart(request, watch_id):
         cart_item.quantity += 1
         cart_item.save()
     
-
-    
     return redirect(('cart'))
+    
+    
+
+
 
 
 
@@ -102,22 +106,27 @@ def checkout(request):
     total_cart_price = cart_items.aggregate(total_price=Sum(F('watch__price') * F('quantity')))['total_price'] or 0
     user_detail = UserDetail.objects.get(user=request.user)
 
-    # Initialize the address update form with the user's current address
     address_form = AddressUpdateForm(instance=user_detail)
 
     if request.method == 'POST':
-        # Process the form submission for address update
-        address_form = AddressUpdateForm(request.POST, instance=user_detail)
-        if address_form.is_valid():
-            address_form.save()
-            return redirect('checkout')
+        cart_item_quantities = {item.watch.id: item.quantity for item in cart_items}
+
+        # Check if the order quantity exceeds available stock before processing
+        for watch_id, quantity in cart_item_quantities.items():
+            watch = Watch.objects.get(pk=watch_id)
+            if quantity > watch.stock_quantity:
+                messages.error(request, f'Quantity for {watch.name} is higher than available stock!')
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+        # Rest of the checkout logic goes here...
+        # Save the address and proceed to payment
 
     return render(request, 'checkout.html', {
         'cart': cart,
         'cart_items': cart_items,
         'total_cart_price': total_cart_price,
         'user_address': user_detail.address,
-        'address_form': address_form,  # Pass the address update form to the template
+        'address_form': address_form,
     })
 
 
@@ -153,49 +162,45 @@ def download_invoice(request, order_uuid):
 def dummy_payment(request):
     return render(request, 'dummy_payment.html')
 
-# def process_payment(request):
-#     # Perform any necessary actions related to the payment (in a real application)
-#     messages.success(request, 'Payment successful!')
-#     return render(request, 'payment_successful.html')
-
+from django.db import IntegrityError
 def process_payment(request):
-    # Perform any necessary actions related to the payment (in a real application)
-
-    # Simulate a successful payment (replace with your actual logic)
-    if True:  # Replace with your actual logic to determine if the payment was successful
+    if request.method == 'POST':
         cart = Cart.objects.get(user=request.user)
         cart_items = CartItem.objects.filter(cart=cart)
 
-        # Calculate total price for each item before passing it to the template
+        # Check if the cart quantity exceeds available stock before processing payment
         for item in cart_items:
-            item.total_price = item.watch.price * item.quantity
+            if item.quantity > item.watch.stock_quantity:
+                messages.error(request, f'You have selected more watches than available for {item.watch.name}. Available quantity: {item.watch.stock_quantity}')
+                return redirect('cart')
 
-        total_cart_price = cart_items.aggregate(total_price=Sum(F('watch__price') * F('quantity')))['total_price'] or 0
+        try:
+            with transaction.atomic():
+                # Calculate total price and create the order
+                total_cart_price = sum(item.watch.price * item.quantity for item in cart_items)
+                order = Order.objects.create(user=request.user, total_price=total_cart_price)
 
-        # Save the cart before creating the order and order items
-        cart.save()
+                # Decrease stock and create order items
+                for item in cart_items:
+                    item.watch.stock_quantity -= item.quantity
+                    item.watch.save()
+                    OrderItem.objects.create(order=order, watch=item.watch, quantity=item.quantity, total_price=item.watch.price * item.quantity)
 
-        order = Order.objects.create(user=request.user, total_price=total_cart_price)
+                # Clear the cart after successful order creation
+                cart.items.clear()
+                order.payment_successful = True
+                order.save()
+                messages.success(request, 'Payment successful! Order placed successfully!')
+                return render(request, 'payment_successful.html')
 
-        for item in cart_items:
-            OrderItem.objects.create(order=order, watch=item.watch, quantity=item.quantity, total_price=item.total_price)
+        except IntegrityError as e:
+            # If there's an error during payment processing, handle it here
+            
+            return render(request, 'payment_failed.html')
 
-        # Clear the cart items
-        cart.items.clear()
-        
-        order.payment_successful = True
-        order.save()
-
-
-        messages.success(request, 'Payment successful! Order placed successfully!')
-
-        # Redirect to the cart page after successful payment
-        #return redirect('cart')
-        return render(request, 'payment_successful.html')
-    # If the payment is not successful, you might want to handle it accordingly
-    else:
-        messages.error(request, 'Payment failed. Please try again.')
-        return render(request, 'payment_failed.html')  # You can create a template for payment failure
+    # If the payment is not successful, handle it accordingly
+    messages.error(request, 'Invalid request method for payment.')
+    return render(request, 'payment_failed.html')
 
 
 

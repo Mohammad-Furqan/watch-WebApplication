@@ -12,6 +12,22 @@ class Watch(models.Model):
     image = models.ImageField(upload_to='watch_images/')
     created_at = models.DateTimeField(auto_now_add=True)
     is_featured = models.BooleanField(default=False)
+    stock_quantity = models.PositiveIntegerField(default=0)
+
+    def is_in_stock(self, quantity=1):
+        return self.stock_quantity >= quantity
+
+    def decrease_stock(self, quantity):
+        if self.stock_quantity >= quantity:
+            self.stock_quantity -= quantity
+            self.save()
+            return True
+        return False
+
+    def increase_stock(self, quantity):
+        self.stock_quantity += quantity
+        self.save()
+
     def __str__(self):
         return self.name
 
@@ -65,7 +81,6 @@ class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     watch = models.ForeignKey('Watch', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-
 
 
 
